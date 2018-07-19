@@ -1,0 +1,16 @@
+# Windows:
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Python:
+*.pyc
+
+# Mac:
+*.DS_Store
+
+# Linux:
+*.*~
+
+# db
+*.db
