@@ -14,3 +14,7 @@ Desktop.ini
 
 # db
 *.db
+
+# eclipse
+*.classpath
+*.project
