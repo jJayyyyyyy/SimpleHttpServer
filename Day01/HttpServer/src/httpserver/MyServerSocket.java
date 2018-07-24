@@ -54,7 +54,7 @@ public class MyServerSocket {
 		System.out.println("end test4---");
 	}
 	
-	private void readFromSocket(Socket clientSocket) {
+	public void readFromSocket(Socket clientSocket) {
 		try {
 			InputStream is = clientSocket.getInputStream();
 			InputStreamReader isReader = new InputStreamReader(is, Charset.forName("UTF-8"));
@@ -74,15 +74,6 @@ public class MyServerSocket {
 			is.close();
 		}catch (Exception e) {
 			e.printStackTrace();
-		}
-	}
-	
-	public Socket getClientSocket() {
-		try {
-			return serverSocket.accept();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
 		}
 	}
 	

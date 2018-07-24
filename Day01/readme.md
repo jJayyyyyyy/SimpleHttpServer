@@ -155,6 +155,8 @@ public class MySocket{
 	}
 	```
 
+	结束测试时，在 nc 中发送 `q`，这样即可满足 `if( line.equals("q") == true )` 的判断条件，从而退出循环。
+
 *	test4, 持续监听端口
 
 	在前面的例子中, 如果没有事先运行 `nc` 就运行 `test1()` 或 `test2()`, 那么会得到错误信息`Connection refused`。
