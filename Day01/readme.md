@@ -4,11 +4,11 @@
 
 实际上 `socket` 是一个比较复杂的结构, 同学们可以自行搜索相关资料。下面讲讲怎么使用 `Java` 中的 `socket` 类。
 
+>	注意, 本实验需要用到 `Linix/Unix` 中的工具 `nc`
+
 <br>
 
 ###	2. 如何创建 socket
-
->	注意, 本实验需要用到 `Linix/Unix` 中的工具 `nc`
 
 首先我们在 Eclipse 中新建一个`工程 HttpServer`, 并新建一个叫做 `httpserver 的包(package)`。
 
