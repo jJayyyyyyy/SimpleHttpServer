@@ -9,7 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
 
-public class MyServerSocket {
+public class MySocketServer {
 	private String host = "127.0.0.1";
 	private int port = 8888;
 	public ServerSocket serverSocket;
@@ -20,7 +20,7 @@ public class MyServerSocket {
 	这个新的clientSocket用于和客户端进行通信，而原来的serverSocket则继续进行监听。
 	*/
 	
-	public MyServerSocket() {
+	public MySocketServer() {
 		try {
 			serverSocket = new ServerSocket(port, 5, InetAddress.getByName(host));
 			System.out.println(serverSocket.getLocalPort());
@@ -33,7 +33,7 @@ public class MyServerSocket {
 	}
 	
 	public static void main(String[] args) {
-		MyServerSocket testServerSocket = new MyServerSocket();
+		MySocketServer testServerSocket = new MySocketServer();
 		testServerSocket.test4();
 		testServerSocket.close();
 	}

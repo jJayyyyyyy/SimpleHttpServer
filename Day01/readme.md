@@ -163,15 +163,15 @@ public class MySocket{
 
 	而一般的 server 会有一个专门用于监听(`listen`) 的 `serversocket`, 它会 `accept()` 客户端发来的连接请求, 并产生一个新的 `socket` 与客户端进行通信(原来的 `serversocket` 则继续进行监听)。为了实现上述功能, 我们需要用到 `ServerSocket` 类。
 
-	我们新建一个 `MyServerSocket.java`
+	我们新建一个 `MySocketServer.java`
 
 	```java
-	public class MyServerSocket {
+	public class MySocketServer {
 		private String host = "127.0.0.1";
 		private int port = 8888;
 		public ServerSocket serverSocket;
 
-		public MyServerSocket() {
+		public MySocketServer() {
 			try {
 				serverSocket = new ServerSocket(port, 5, InetAddress.getByName(host));	// 创建一个 ServerSocket 实例
 				System.out.println(serverSocket.getLocalPort());
