@@ -199,9 +199,36 @@ public class MySocket{
 		}
 		System.out.println("end test4---");
 	}
+
+	// 把 test3() 改编成 readFromSocket()
+	public void readFromSocket(Socket socket) {
+		try {
+			InputStream is = socket.getInputStream();
+			InputStreamReader isReader = new InputStreamReader(is, Charset.forName("UTF-8"));	// 二进制流转变成文本流
+			BufferedReader bufReader = new BufferedReader(isReader);	// 缓冲区
+			
+			String line = "";
+			while( true ) {
+				line = bufReader.readLine(); // readLine会自动去掉\r\n, 相当于rstrip("\r\n")
+				if( line.equals("q") == true ) {
+					// 注意在判断字符串内容是否相同的时候要用 .equals() 方法
+					break;
+				}else {
+					System.out.println(line);
+				}
+			}
+			bufReader.close();
+			isReader.close();
+			is.close();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	```
-	
-	当有客户端发起连接请求时, 负责监听的 `serverSocket` 会对其 `accept()`, 于是我们便得到了一个 `clientSocket` , 用于和客户端通信。接下来的 `readFromSocket()` 就是之前的 `test3()`, 这里不再赘述。
+
+	测试的时候, 首先运行 `test4()`, 然后使用 `nc 127.0.0.1 8888` 发送数据, 这样我们就能在 `Eclipse` 的 `console` 中接收到数据了.
+
+	当有客户端发起连接请求时, 负责监听的 `serverSocket` 会对其 `accept()`, 于是我们便得到了一个 `clientSocket`, 用于和客户端通信.
 
 <br>
 
