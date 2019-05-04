@@ -173,6 +173,10 @@
 
 *	然后打开浏览器, 输入 `127.0.0.1:8888`, 我们就可以在屏幕上看到服务器返回的 `Hello` 了。如果使用开发者工具进行分析, 我们还可以看到我们发送的 `headers` 的具体信息
 
+![browser](https://github.com/jJayyyyyyy/SimpleHttpServer/blob/master/Day02/assets/browser.png)
+
+![console](https://github.com/jJayyyyyyy/SimpleHttpServer/blob/master/Day02/assets/console.png)
+
 <br><br>
 
 ###	6. 小结
