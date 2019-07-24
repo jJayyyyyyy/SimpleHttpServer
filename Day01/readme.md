@@ -12,31 +12,41 @@
 
 ###	2. 如何创建 socket
 
-首先我们在 Eclipse 中新建一个`工程 HttpServer`, 并新建一个叫做 `httpserver 的包(package)`。
+首先我们在 Eclipse 中新建一个`工程 HttpServer`, 并新建一个叫做 `httpserver` 的包(package)。
 
 然后我们新建一个类, 叫做 `MySocket.java` , 内容如下
 
 ```java
 public class MySocket{
-	private String host = "127.0.0.1";
-	private int port = 8888;
-	private Socket socket;
+	private final String LOCALHOST = "127.0.0.1";
+	private final int DEFAULT_PORT = 8888;
+
+	private InetAddress mHost;
+	private int mPort;
+	private Socket mSocket;
 
 	public MySocket() {
 		try {
-			this.socket = new Socket(InetAddress.getByName(host), port); // 创建一个 Socket 实例
-
-			socket.setReuseAddress(true); // 开启快速重用
-
-		} catch (Exception e) {
+			mHost = InetAddress.getByName(LOCALHOST);
+			mPort = DEFAULT_PORT;
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void close() {
+	public void socketTest() {
 		try {
-			socket.close();	// 用完之后需要关闭 socket
-		} catch (IOException e) {
+			// 创建一个 Socket 实例
+			mSocket = new Socket(mHost, mPort);
+			// 开启快速重用
+			mSocket.setReuseAddress(true);
+
+			// do something
+
+			// socket 用完之后需要关闭
+			socket.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -51,34 +61,37 @@ public class MySocket{
 
 <br>
 
-###	3. socket 通信测试
+###	3. socket client 发送和接收数据
 
 下面我们将进行4组测试，以便快速上手 `socket`.
 
-*	test1, 数据发送
+*	3.1 数据发送
 
-	添加一个测试方法 `test1()`, 待发送的数据是 `"hello world"`, 编码方式是 UTF-8, 再编写一个 `main()` 方法作为程序入口
+	添加一个方法 `send()`, 待发送的数据是 `"Hello world!"`, 编码方式是 `UTF-8`
 
 	```java
-	public void test1() {
-		System.out.println("start test1---");
+	public void send(String msg) {
 		try {
-			String msg = "hello world";
-			byte[] txbuf = msg.getBytes(Charset.forName("UTF-8"));
+			// 创建一个 Socket 实例
+			mSocket = new Socket(mHost, mPort);
+			// 开启快速重用
+			mSocket.setReuseAddress(true);
 			
-			OutputStream os = socket.getOutputStream();	// 获取输出流
+			byte[] txbuf = msg.getBytes(Charset.forName("UTF-8"));
+			// 获取输出流
+			OutputStream os = mSocket.getOutputStream();
 			os.write(txbuf);
 			os.close();
-		} catch (Exception e) {
+			mSocket.close();
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("end test1---");
 	}
 
 	public static void main(String[] args) {
-		MySocket testSocket = new MySocket();
-		testSocket.test1();
-		testSocket.close();
+		MySocket mySocket = new MySocket();
+		mySocket.send("Hello world!");
 	}
 	```
 
@@ -92,26 +105,42 @@ public class MySocket{
 
 	这样就新建了一个监听本机 `8888` 端口的 `server`。这之后, 我们再运行 `test1()` , 就可以在terminal中看到 `"hello world"` 了。
 
-*	test2, 数据接收
+	PS: 如果你的电脑上没有 nc （比如Windows）也没关系，只要有 `Python 3` 就好了
 
-	添加一个测试方法 `test2()`
+	```
+	python -m http.server 8888
+	```
+
+	就会启动一个监听 8888 端口的 server，同样可以帮助我们测试
+
+*	3.2, 数据接收
+
+	添加一个方法 `recv()`
 
 	```java
-	public void test2() {
-		System.out.println("start test2---");
+	public void recv() {
 		try {
-			byte[] rxbuf = new byte[16];	// 构造一个字节数组作为接收区, 大小是 16 字节, 未填充的元素值默认为 0
-			
-			InputStream is = socket.getInputStream();	// 获取输入流
-			is.read(rxbuf);	// 写入接收区
+			// 创建一个 Socket 实例
+			mSocket = new Socket(mHost, mPort);
+			// 开启快速重用
+			mSocket.setReuseAddress(true);
+
+			// 构造一个字节数组作为接收区, 大小是 16 字节, 未填充的元素值默认初始化为 0
+			byte[] rxbuf = new byte[16];
+			// 获取输入流
+			InputStream is = mSocket.getInputStream();
+			// 写入接收区
+			is.read(rxbuf);
 			is.close();
-			
-			String msg = new String(rxbuf, Charset.forName("UTF-8"));	// 转换成字符串
+			mSocket.close();
+
+			// 转换成字符串
+			String msg = new String(rxbuf, Charset.forName("UTF-8"));
 			System.out.println(msg);
-		}catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("end test2---");
 	}
 	```
 
@@ -123,45 +152,63 @@ public class MySocket{
 
 	然后运行 `test2()`, 接着回到 `nc`, 输入 `"hi"` , 就可以在 Eclipse 的 Console 中看到 `"hi"` 了
 
-*	test3, 数据接收, 逐行读取
+	PS: 也可以使用最下面参考资料中的 `Python Server with echo` 进行测试
 
-	在 test2 中, 我们用于接收数据的 `rxbuf` 的大小与实际数据的大小不一定相同, 这就导致 `rxbuf` 末尾可能存在多余的 `0`. 有两种解决办法: 1. 如果事先知道数据大小, 那么就创建相应大小的空间。2. 如果数据是文本, 那么可以先把数据读到缓冲区, 然后一行一行地读出来。下面是第 2 种方法的代码。
+*	3.3, 数据接收, 逐行读取
+
+	在 test2 中, 我们用于接收数据的 `rxbuf` 的大小与实际数据的大小不一定相同, 这就导致 `rxbuf` 末尾可能存在多余的 `0` (Windows下会显示为小方框). 有两种解决办法: 1. 如果事先知道数据大小, 那么就创建相应大小的空间。2. 如果数据是文本, 那么可以先把数据读到缓冲区, 然后一行一行地读出来。下面是第 2 种方法的代码。
 
 	```java
-	public void test3() {
-		System.out.println("start test3---");
+	public void recvLineByLine() {
 		try {
-			InputStream is = socket.getInputStream();
-			InputStreamReader isReader = new InputStreamReader(is, Charset.forName("UTF-8"));	// 二进制流转变成文本流
-			BufferedReader bufReader = new BufferedReader(isReader);	// 缓冲区
-			
-			String line = "";
-			while( true ) {
-				line = bufReader.readLine(); // readLine会自动去掉\r\n, 相当于rstrip("\r\n")
-				if( line.equals("q") == true ) {
-					// 注意在判断字符串内容是否相同的时候要用 .equals() 方法
+			// 创建一个 Socket 实例
+			mSocket = new Socket(mHost, mPort);
+			// 开启快速重用
+			mSocket.setReuseAddress(true);
+
+			// 获取输入流
+			InputStream is = mSocket.getInputStream();
+			// 二进制流转变成文本流
+			InputStreamReader isReader = new InputStreamReader(is, Charset.forName("UTF-8"));
+			// 缓冲区
+			BufferedReader bufReader = new BufferedReader(isReader);
+
+			while(true) {
+				String line = bufReader.readLine();
+				// readLine会自动去掉\r\n, 相当于rstrip("\r\n")
+				if (line != null) {
+					if(line.equals("q")) {
+						// 注意在判断字符串内容是否相同的时候要用 .equals() 方法
+						System.out.println("quit");
+						break;
+					}
+					else {
+						System.out.println(line);
+					}
+				}
+				else {
 					break;
-				}else {
-					System.out.println(line);
 				}
 			}
+
 			bufReader.close();
 			isReader.close();
 			is.close();
-		}catch (Exception e) {
+			mSocket.close();
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("end test3---");
 	}
 	```
 
 	结束测试时，在 nc 中发送 `q`，这样即可满足 `if( line.equals("q") == true )` 的判断条件，从而退出循环。
 
-*	test4, 持续监听端口
+###	4. socket server, 持续监听端口
 
-	在前面的例子中, 如果没有事先运行 `nc` 就运行 `test1()` 或 `test2()`, 那么会得到错误信息`Connection refused`。
+*	在前面的例子中, 如果没有提先运行 `nc` 就运行 `send()`, `recv()` 或者 `recvLineByLine`, 那么会得到错误信息 `Connection refused`。也就是说，我们前面写的都是 `client` 向 `server` 发消息的过程。下面我们来尝试写一下 `server`
 
-	而一般的 server 会有一个专门用于监听(`listen`) 的 `serversocket`, 它会 `accept()` 客户端发来的连接请求, 并产生一个新的 `socket` 与客户端进行通信(原来的 `serversocket` 则继续进行监听)。为了实现上述功能, 我们需要用到 `ServerSocket` 类。
+	一般来说 `server` 会有一个专门用于监听 (`listen`) 的 `serversocket`, 它会 `accept()` 客户端发来的连接请求, 并产生一个新的 `socket` 与客户端进行通信(原来的 `serversocket` 则继续进行监听)。为了实现上述功能, 我们需要用到 `ServerSocket` 类。
 
 	我们新建一个 `MySocketServer.java`
 
@@ -251,3 +298,47 @@ public class MySocket{
 *	[输入输出流](https://github.com/jJayyyyyyy/JavaNotes/blob/master/note16.md)
 
 *	[ServerSocket, 工作流程](https://bbs.csdn.net/topics/390649992?page=1)
+
+*	[Python Docs, Socket](https://docs.python.org/3/library/socket.html)
+
+	[server with echo](https://github.com/jJayyyyyyy/network/blob/master/transport_layer/tcp/server_with_echo.py)
+	
+	```python
+	# https://docs.python.org/3/library/socket.html#example
+	import socket
+
+	def mySocketTest(option):
+		server_host = '127.0.0.1'
+		port = 8888
+
+		with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+			s.bind((server_host, port))
+			s.listen(1)
+			conn, addr = s.accept()
+
+			if option == 1:
+				print('1: 测试 send()')
+				with conn:
+					data = conn.recv(1024)
+					print(data.decode('utf-8'))
+				print('ok\n')
+
+			elif option == 2:
+				print('2: 测试 recv()')
+				with conn:
+					conn.sendall('hi from server\n'.encode('utf-8'))
+				print('ok\n')
+
+			elif option == 3:
+				print('3: 测试 recvLineByLine()')
+				with conn:
+					for i in range(3):
+						msg = input('请输入消息: ') + '\n'
+						conn.sendall(msg.encode('utf-8'))
+				print('ok\n')
+
+	if __name__ == '__main__':
+		mySocketTest(1)
+		mySocketTest(2)
+		mySocketTest(3)
+	```
