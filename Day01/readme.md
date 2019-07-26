@@ -210,72 +210,48 @@ public class MySocket{
 
 	一般来说 `server` 会有一个专门用于监听 (`listen`) 的 `serversocket`, 它会 `accept()` 客户端发来的连接请求, 并产生一个新的 `socket` 与客户端进行通信(原来的 `serversocket` 则继续进行监听)。为了实现上述功能, 我们需要用到 `ServerSocket` 类。
 
-	我们新建一个 `MySocketServer.java`
+	我们新建一个 `MySocketServer.java`，然后包装出一个 `listen()`
 
 	```java
-	public class MySocketServer {
-		private String host = "127.0.0.1";
-		private int port = 8888;
-		public ServerSocket serverSocket;
-
-		public MySocketServer() {
-			try {
-				serverSocket = new ServerSocket(port, 5, InetAddress.getByName(host));	// 创建一个 ServerSocket 实例
-				System.out.println(serverSocket.getLocalPort());
-
-				serverSocket.setReuseAddress(true);
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	```
-	
-	有了 `serverSocket` , 我们就可以进行 `test4()` 了
-
-	```java
-	public void test4() {
-		System.out.println("start test4---");
+	// serverSocket 专门用于监听
+	public void listen() {
 		try {
-			Socket clientSocket = serverSocket.accept();
-			readFromSocket(clientSocket);
-			
-			clientSocket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+			// 创建一个 ServerSocket 实例
+			// MAX_QUEUE_SIZE 指等待队列的最大长度
+			serverSocket = new ServerSocket(mPort, MAX_QUEUE_SIZE, mHost);
+			// 开启快速重用, 否则端口会被占用一段时间, https://docs.oracle.com/javase/7/docs/api/java/net/StandardSocketOions.html
+			serverSocket.setReuseAddress(true);
 		}
-		System.out.println("end test4---");
-	}
-
-	// 把 test3() 改编成 readFromSocket()
-	public void readFromSocket(Socket socket) {
-		try {
-			InputStream is = socket.getInputStream();
-			InputStreamReader isReader = new InputStreamReader(is, Charset.forName("UTF-8"));	// 二进制流转变成文本流
-			BufferedReader bufReader = new BufferedReader(isReader);	// 缓冲区
-			
-			String line = "";
-			while( true ) {
-				line = bufReader.readLine(); // readLine会自动去掉\r\n, 相当于rstrip("\r\n")
-				if( line.equals("q") == true ) {
-					// 注意在判断字符串内容是否相同的时候要用 .equals() 方法
-					break;
-				}else {
-					System.out.println(line);
-				}
-			}
-			bufReader.close();
-			isReader.close();
-			is.close();
-		}catch (Exception e) {
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	```
 
-	测试的时候, 首先运行 `test4()`, 然后使用 `nc 127.0.0.1 8888` 发送数据, 这样我们就能在 `Eclipse` 的 `console` 中接收到数据了.
+	当客户端发来一个连接请求的时候，`serverSocket` 就 `accept()` ，并创建一个新的 `clientSocket = serverSocket.accept();`
 
-	当有客户端发起连接请求时, 负责监听的 `serverSocket` 会对其 `accept()`, 于是我们便得到了一个 `clientSocket`, 用于和客户端通信.
+	这个新的clientSocket用于和客户端进行通信，而原来的serverSocket则继续进行监听
+
+	```java
+	public void recvLineByLine() {
+		try {
+			Socket socket = serverSocket.accept();
+
+			// 类似于 MySocket.java 里面的  recvLineByLine()
+
+			socket.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	```
+
+	测试的时候, 首先运行 `main()`, 然后使用 `nc 127.0.0.1 8888` 发送数据, 这样我们就能在 `Eclipse` 的 `console` 中接收到数据了.
+
+	当有客户端发起连接请求时, 负责监听的 `serverSocket` 会对其 `accept()`, 于是我们便得到了一个 `clientSocket`, 用于和客户端通信
+
+	PS: 也可以使用 `Python3` 进行测试，详见最下方的 【测试 `MySocketServer.java`】
 
 <br>
 
@@ -302,12 +278,14 @@ public class MySocket{
 *	[Python Docs, Socket](https://docs.python.org/3/library/socket.html)
 
 	[server with echo](https://github.com/jJayyyyyyy/network/blob/master/transport_layer/tcp/server_with_echo.py)
-	
+
+	测试 `MySocket.java`
+
 	```python
 	# https://docs.python.org/3/library/socket.html#example
 	import socket
 
-	def mySocketTest(option):
+	def myServer(option):
 		server_host = '127.0.0.1'
 		port = 8888
 
@@ -338,7 +316,24 @@ public class MySocket{
 				print('ok\n')
 
 	if __name__ == '__main__':
-		mySocketTest(1)
-		mySocketTest(2)
-		mySocketTest(3)
+		myServer(1)
+		myServer(2)
+		myServer(3)
 	```
+
+	测试 `MySocketServer.java`
+
+	```python
+	# https://docs.python.org/3/library/socket.html#example
+	import socket
+
+	def myClient():
+		host = '127.0.0.1'
+		port = 8888
+		with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+			s.connect((host, port))
+			s.sendall('Hello, world'.encode('utf-8'))
+
+	if __name__ == '__main__':
+		myClient()
+	````
