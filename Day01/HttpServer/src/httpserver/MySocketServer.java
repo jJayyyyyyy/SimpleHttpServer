@@ -33,7 +33,8 @@ public class MySocketServer {
 			// 创建一个 ServerSocket 实例
 			// MAX_QUEUE_SIZE 指等待队列的最大长度
 			serverSocket = new ServerSocket(mPort, MAX_QUEUE_SIZE, mHost);
-			// 开启快速重用, 否则端口会被占用一段时间, https://docs.oracle.com/javase/7/docs/api/java/net/StandardSocketOions.html
+			// 开启快速重用, 否则端口会被占用一段时间
+			// https://docs.oracle.com/javase/8/docs/api/java/net/ServerSocket.html
 			serverSocket.setReuseAddress(true);
 		}
 		catch (Exception e) {

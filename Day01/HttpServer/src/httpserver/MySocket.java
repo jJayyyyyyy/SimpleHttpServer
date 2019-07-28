@@ -31,8 +31,9 @@ public class MySocket {
 			// 创建一个 Socket 实例
 			mSocket = new Socket(mHost, mPort);
 			// 开启快速重用
+			// https://docs.oracle.com/javase/8/docs/api/java/net/Socket.html
 			mSocket.setReuseAddress(true);
-			
+
 			byte[] txbuf = msg.getBytes(Charset.forName("UTF-8"));
 			// 获取输出流
 			OutputStream os = mSocket.getOutputStream();
@@ -51,6 +52,7 @@ public class MySocket {
 			// 创建一个 Socket 实例
 			mSocket = new Socket(mHost, mPort);
 			// 开启快速重用
+			// https://docs.oracle.com/javase/8/docs/api/java/net/Socket.html
 			mSocket.setReuseAddress(true);
 						
 			// 构造一个字节数组作为接收区, 大小是 16 字节, 未填充的元素值默认初始化为 0
@@ -76,6 +78,7 @@ public class MySocket {
 			// 创建一个 Socket 实例
 			mSocket = new Socket(mHost, mPort);
 			// 开启快速重用
+			// https://docs.oracle.com/javase/8/docs/api/java/net/Socket.html
 			mSocket.setReuseAddress(true);
 			
 			// 获取输入流

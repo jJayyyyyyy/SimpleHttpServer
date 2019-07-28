@@ -219,7 +219,7 @@ public class MySocket{
 			// 创建一个 ServerSocket 实例
 			// MAX_QUEUE_SIZE 指等待队列的最大长度
 			serverSocket = new ServerSocket(mPort, MAX_QUEUE_SIZE, mHost);
-			// 开启快速重用, 否则端口会被占用一段时间, https://docs.oracle.com/javase/7/docs/api/java/net/StandardSocketOions.html
+			// 开启快速重用, 否则端口会被占用一段时间
 			serverSocket.setReuseAddress(true);
 		}
 		catch (Exception e) {
@@ -269,7 +269,9 @@ public class MySocket{
 
 *	[Java 流的应用 --- socket](https://www.bilibili.com/video/av20359445/?p=58)
 
-*	[开启快速重用socket](https://docs.oracle.com/javase/7/docs/api/java/net/StandardSocketOions.html)
+*	[Oracle Docs, 开启快速重用 Socket](https://docs.oracle.com/javase/8/docs/api/java/net/Socket.html)
+
+	[Oracle Docs, 开启快速重用 ServerSocket](https://docs.oracle.com/javase/8/docs/api/java/net/ServerSocket.html)
 
 *	[输入输出流](https://github.com/jJayyyyyyy/JavaNotes/blob/master/note16.md)
 
