@@ -70,124 +70,13 @@
 
 <br><br>
 
-###	4. 实现
+###	4. 小结
 
-*	我们可以沿用 `Day01` 的工程, 并将其中的 `MyServer.java` 删除
-
-	接下来, 我们对 `MySocketServer.java` 中的 `readFromSocket()` 稍作修改, 把退出循环的条件修改为
-
-	```java
-	// if( line.equals("q") == true ) -->
-	if( line.equals("") == true )
-	```
-
-	也就是说, 接收结束的条件, 从原来的结束符 'q', 变成了现在的内容为空
-
-*	然后我们新建一个 `MyHttpServer.java` 文件, 这个类继承自 `MyServerSocket`, 
-
-	```java
-	public class MyHttpServer extends MyServerSocket {
-		public static void main(String[] args) {
-			MyHttpServer myHttpServer = new MyHttpServer();
-			myHttpServer.test5();
-			myHttpServer.close();
-		}
-	}
-	```
-
-	其中的 `test5()` 就是我们的测试方法, 它的前半部分和之前一样, 先接收和读取 `request`, 然后发送 `response`
-
-	```java
-	public void test5() {
-		System.out.println("start test5---");
-		try {
-			Socket clientSocket = serverSocket.accept();
-
-			readFromSocket(clientSocket);	// 接收 request
-			sendResponse(clientSocket);		// 返回 response
-
-			clientSocket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println("end test5---");
-	}
-	```
-
-	其中的 `sendResponse()` 方法就是用二进制流向客户端(浏览器) 返回一个 HTTP 响应
-
-	```java
-	private void sendResponse(Socket socket) {
-		try {
-			Response response = new Response();
-			
-			OutputStream os = socket.getOutputStream();
-			os.write(response.byteHeader);
-			os.write(response.byteBody);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	```
-
-	接下来, 我们将构建一个 `Response` 对象
-
-*	构建 `Response` 对象
-
-	今天我们先实现一个简单的例子, 仅向客户端返回内容为 `hello` 的响应, 我们会在以后的内容中构造包含更多信息的 `Response` 对象
-
-	首先新建一个 `Response.java` 文件, 输入如下内容
-
-	```java
-	public class Response{
-		public byte[] byteHeader;
-		public byte[] byteBody;
-		public Response() {
-			String strBody = "Hello";
-			String strHeader = "HTTP/1.0 200 OK\n"
-							+ "content-type: text/plain; charset=utf-8\n"
-							+ "content-length: " + strBody.length()
-							+ "\r\n\r\n";
-
-			byteHeader = strHeader.getBytes(Charset.forName("UTF-8"));
-			byteBody = strBody.getBytes(Charset.forName("UTF-8"));
-		}
-	}
-	```
-
-	从中我们看到,  `Response` 的 `strBody` 就是 `Hello`, 然后我们加上一些 `header`, 将其包装成一个 `HTTP` 报文
-
-	第一步是加上 `status line`, 也就是 ` HTTP/1.0 200 OK\n `, 表明请求成功, 注意最后要加上换行符
-
-	第二步是加上 `response headers`, 这里加上了 `content-type`, 让浏览器把 `body` 中的内容解读成 `utf-8` 编码的纯文本, 然后加上了 `body` 的长度
-
-	第三步是加上 `blank line`, 用于分隔 `headers` 和 `body`
-
-	最后是将 `strResponse` 进行 `utf-8` 编码, 转换成 `byteResponse`, 这样我们就可以在上一节中用 `os.write(response.byteHeader)` 和 `os.write(response.byteBody);` 把 `response` 发给客户端了
+今天我们学习了 `HTTP协议` 的基本知识, 明天我们将通过 `Java` 实现一个简单的 `HTTP Server`, 然后结合浏览器完成 `请求-响应` 的过程，并继续模仿 `Python` 中的 `SimpleHTTPServer`, 使我们的 `Java版 SimpleHTTPServer` 也能完成更多相似的功能。
 
 <br><br>
 
-###	5. 测试
-
-*	首先运行 `MyHttpServer.java`
-
-*	然后打开浏览器, 输入 `127.0.0.1:8888`, 我们就可以在屏幕上看到服务器返回的 `Hello` 了。如果使用开发者工具进行分析, 我们还可以看到我们发送的 `headers` 的具体信息
-
-![browser](https://github.com/jJayyyyyyy/SimpleHttpServer/blob/master/Day02/assets/browser.png)
-
-![console](https://github.com/jJayyyyyyy/SimpleHttpServer/blob/master/Day02/assets/console.png)
-
-<br><br>
-
-###	6. 小结
-
-今天我们学习了 `HTTP协议` 的基本知识, 并且通过 `Java` 实现了建立了一个简单的 `HTTPServer`, 结合浏览器完成了 `请求-响应` 的过程。
-
-下一步, 我们将继续模仿 `Python` 中的 `SimpleHTTPServer`, 使我们的 `Java版 SimpleHTTPServer` 也能完成更多相似的功能。
-
-<br><br>
-
-###	7. 相关阅读:
+###	5. 相关阅读:
 
 *	[HTTP请求报文和HTTP响应报文](https://www.cnblogs.com/sjm19910902/p/6423181.html)
 
