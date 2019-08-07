@@ -51,7 +51,7 @@
 					Charset.forName("UTF-8")
 				)
 			);
-			request = new Request(bufferedReader);
+			myRequest = new MyRequest(bufferedReader);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -66,8 +66,8 @@
 					Charset.forName("UTF-8")
 				)
 			);
-			response = new Response(request);
-			bufferedWriter.write(response.getResponse());
+			myResponse = new MyResponse();
+			bufferedWriter.write(myResponse.getResponse());
 			// 如果用 buffer，就需要 flush 来发送
 			bufferedWriter.flush();
 		}
@@ -76,4 +76,3 @@
 		}
 	}
 	```
-
